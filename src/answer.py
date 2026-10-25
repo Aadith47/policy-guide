@@ -47,6 +47,10 @@ Rules:
 - next_step must come from the excerpts, or be "Ask HR". Never leave it empty.
 - Reply with JSON only, with these keys: verdict, reason, pages, next_step.
   "pages" is a list of the page numbers you used.
+- Use "Depends" when the excerpts give different outcomes for different
+  conditions (for example exempt and non-exempt employees), or when they set a
+  normal limit and say more needs approval. If the rule has no conditions, use
+  "Allowed" or "Violation".
 
 Policy excerpts:
 <excerpts>
