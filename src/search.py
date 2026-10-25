@@ -1,6 +1,6 @@
 from store import get_collection
 
-TOP_K = 3
+TOP_K = 5
 
 
 def search(question, top_k=TOP_K):
