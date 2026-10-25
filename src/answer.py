@@ -165,6 +165,6 @@ def answer_question(question):
         data = parse_answer(raw_text)
         if data is not None:
             return apply_guardrails(data, hits)
-        logger.warning("Unreadable reply (attempt %d): %r", attempt, raw_text[:200])
+        logger.warning("Unreadable reply (attempt %d): %r", attempt, raw_text)
 
     return blocked_answer("The answer could not be read. Please ask HR.")
