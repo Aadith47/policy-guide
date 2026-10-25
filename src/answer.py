@@ -9,7 +9,7 @@ from search import search
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "your-working-model-name"  # keep the model name that already works for you
+MODEL_NAME = "gemini-3.5-flash-lite"  # keep the model name that already works for you
 MAX_QUESTION_CHARS = 300
 MAX_ATTEMPTS = 2
 VALID_VERDICTS = {"Allowed", "Violation", "Depends", "Unclear"}
