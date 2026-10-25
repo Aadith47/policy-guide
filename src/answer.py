@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+import time
 
 from google import genai
 
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 MODEL_NAME = "gemini-3.5-flash-lite"  # keep the model name that already works for you
 MAX_QUESTION_CHARS = 300
 MAX_ATTEMPTS = 3
+RETRY_DELAY_SECONDS = 2
 VALID_VERDICTS = {"Allowed", "Violation", "Depends", "Unclear"}
 DECIDING_VERDICTS = {"Allowed", "Violation", "Depends"}
 JSON_KEYS = ("verdict", "reason", "pages", "next_step")
@@ -63,7 +65,8 @@ Employee question:
 {question}
 </question>
 """
-
+class ModelUnavailableError(Exception):
+    """The model could not be reached (network drop, outage, rate limit)."""
 
 def blocked_answer(reason):
     # One safe shape for every case where we refuse or cannot trust the model
@@ -162,18 +165,37 @@ def answer_question(question):
     if problem:
         return blocked_answer(problem)
 
+    # Check the key here, so a missing key is not hidden by the retry loop below
+    if "GEMINI_API_KEY" not in os.environ:
+        raise RuntimeError("Set the GEMINI_API_KEY environment variable first.")
+
     hits = search(question)
     prompt = PROMPT_TEMPLATE.format(
         excerpts=format_excerpts(hits),
         question=question,
     )
 
-    # One bad reply should not ruin an answer, so we try twice
+    got_reply = False
+    last_error = None
+
+    # One bad reply or network drop should not ruin an answer, so we retry
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        raw_text = ask_model(prompt)
+        try:
+            raw_text = ask_model(prompt)
+        except Exception as error:
+            last_error = error
+            logger.warning("Model call failed (attempt %d): %s", attempt, error)
+            time.sleep(RETRY_DELAY_SECONDS)
+            continue
+
+        got_reply = True
         data = parse_answer(raw_text)
         if data is not None:
             return apply_guardrails(data, hits)
         logger.warning("Unreadable reply (attempt %d): %r", attempt, raw_text)
+
+    # No reply at all is an outage, not an "Unclear" answer, so say so loudly
+    if not got_reply:
+        raise ModelUnavailableError(str(last_error)) from last_error
 
     return blocked_answer("The answer could not be read. Please ask HR.")
