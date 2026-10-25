@@ -11,9 +11,10 @@ logger = logging.getLogger(__name__)
 
 MODEL_NAME = "gemini-3.5-flash-lite"  # keep the model name that already works for you
 MAX_QUESTION_CHARS = 300
-MAX_ATTEMPTS = 2
+MAX_ATTEMPTS = 3
 VALID_VERDICTS = {"Allowed", "Violation", "Depends", "Unclear"}
 DECIDING_VERDICTS = {"Allowed", "Violation", "Depends"}
+JSON_KEYS = ("verdict", "reason", "pages", "next_step")
 
 # Weak first layer only. The prompt rules and the page check do the real work.
 SUSPICIOUS_PHRASES = (
@@ -98,6 +99,14 @@ def to_page_set(value):
     return {int(number) for number in re.findall(r"\d+", str(value))}
 
 
+def quote_bare_keys(text):
+    # The model once wrote pages: [19] without quotes, which is not valid JSON.
+    # We only touch our own 4 keys, and only at the start of a line.
+    for key in JSON_KEYS:
+        text = re.sub(rf'(?m)^(\s*){key}\s*:', rf'\1"{key}":', text)
+    return text
+
+
 def parse_answer(raw_text):
     # Take everything between the first { and the last }, so code fences or
     # a sentence before/after the JSON do not break parsing
@@ -107,7 +116,7 @@ def parse_answer(raw_text):
         return None
 
     try:
-        data = json.loads(raw_text[start : end + 1])
+        data = json.loads(quote_bare_keys(raw_text[start : end + 1]))
     except json.JSONDecodeError:
         return None
 
