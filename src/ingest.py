@@ -9,6 +9,10 @@ OVERLAP_LINES = 2
 SKIP_PAGES = 3  # cover, contents and intro only add noise
 FOOTER_PREFIX = "Page |"  # page footer, not policy text
 
+# Paths are built from this file's location, so the working folder doesn't matter
+BASE_DIR = Path(__file__).resolve().parent.parent
+PDF_PATH = BASE_DIR / "data" / "handbook.pdf"
+
 
 @dataclass
 class Chunk:
@@ -33,7 +37,7 @@ def clean_line(line):
     return line.replace("[", "").replace("]", "").strip()
 
 
-def split_page(text):
+def split_page(text, max_chars=MAX_CHARS):
     # Clean the brackets first, then throw away empty lines
     cleaned = (clean_line(line) for line in text.splitlines())
     lines = [line for line in cleaned if line]
@@ -42,8 +46,9 @@ def split_page(text):
     size = 0
 
     for line in lines:
-        if size + len(line) > MAX_CHARS and current:
+        if size + len(line) > max_chars and current:
             chunks.append(" ".join(current))
+            # Start the next chunk with the tail of this one
             current = current[-OVERLAP_LINES:]
             size = sum(len(item) + 1 for item in current)
         current.append(line)
@@ -54,13 +59,13 @@ def split_page(text):
     return chunks
 
 
-def build_chunks(path=PDF_PATH):
+def build_chunks(path=PDF_PATH, max_chars=MAX_CHARS):
+    # Chunk page by page so every chunk knows which page it came from
     chunks = []
     for page_number, text in read_pages(path):
-        for piece in split_page(text):
+        for piece in split_page(text, max_chars):
             chunks.append(Chunk(id=len(chunks), page=page_number, text=piece))
     return chunks
-
 
 if __name__ == "__main__":
     chunks = build_chunks()
