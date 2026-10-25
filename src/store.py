@@ -1,15 +1,15 @@
 import chromadb
 
-from ingest import build_chunks
+from ingest import BASE_DIR, build_chunks
 
-DB_PATH = "db"
+DB_PATH = BASE_DIR / "db"
 COLLECTION_NAME = "handbook"
 
 
 def get_collection():
     # Build and search share this function so both use the same embedder.
     # Chroma's default embedder is all-MiniLM-L6-v2 (free, runs on your CPU).
-    client = chromadb.PersistentClient(path=DB_PATH)
+    client = chromadb.PersistentClient(path=str(DB_PATH))
     return client.get_or_create_collection(name=COLLECTION_NAME)
 
 
