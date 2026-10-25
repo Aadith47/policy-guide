@@ -24,6 +24,8 @@ def run_tests():
             answer = {"verdict": "ERROR", "pages": [], "reason": str(error)}
 
         expected_page = case.get("expected_page")
+        # Some rules live on more than one page, so extra pages can be marked ok
+        acceptable = {expected_page, *case.get("also_ok_pages", [])}
         results.append(
             {
                 "question": case["question"],
@@ -34,7 +36,8 @@ def run_tests():
                 "got_reason": answer["reason"],
                 "verdict_ok": answer["verdict"] == case["expected_verdict"],
                 # The page only matters when the case expects one
-                "page_ok": expected_page is None or expected_page in answer["pages"],
+                "page_ok": expected_page is None
+                or bool(acceptable & set(answer["pages"])),
             }
         )
         time.sleep(DELAY_SECONDS)
