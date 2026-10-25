@@ -55,7 +55,7 @@ Ran 3 times with the same settings. One earlier run scored 18/19 because a netwo
 Requirements: Python 3.10 or newer, and a free Gemini API key from Google AI Studio.
 
 ```bash
-git clone <your-repo-url>
+git clone git@github.com:Aadith47/policy-guide.git
 cd policy-guide
 python -m venv venv
 venv\Scripts\activate          # Windows
