@@ -111,8 +111,3 @@ policy-guide/
 
 - Handbook: sample employee handbook template (Workable), used for learning and testing only.
 - Built with pypdf, Chroma, google-genai, and python-dotenv.
-
-## Before you publish
-
-- Replace `<your-repo-url>` with your real repository link.
-- Check that the handbook's license allows use in a public repo. If you are not sure, leave `handbook.pdf` out of the repo and tell users to add their own copy.

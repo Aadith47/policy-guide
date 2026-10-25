@@ -5,8 +5,10 @@ import re
 import time
 
 from google import genai
-
 from search import search
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
