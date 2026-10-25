@@ -76,6 +76,7 @@ def blocked_answer(reason):
         "verdict": "Unclear",
         "reason": reason,
         "pages": [],
+        "sources": [],
         "next_step": "Ask HR or rephrase the question.",
     }
 
@@ -147,6 +148,7 @@ def apply_guardrails(data, hits):
         return blocked_answer("I could not tie this answer to the handbook.")
 
     data["pages"] = sorted(cited)
+    data["sources"] = [hit for hit in hits if hit["page"] in cited]
     return data
 
 
