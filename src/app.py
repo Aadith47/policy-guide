@@ -76,7 +76,7 @@ st.caption(
     "Answers come only from the handbook text."
 )
 
-with st.expander("Try an example"):
+with st.expander("Usually asked"):
     for example in EXAMPLE_QUESTIONS:
         st.button(example, on_click=pick_example, args=(example,), key=f"ex_{example}")
 
