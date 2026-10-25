@@ -7,7 +7,7 @@ from search import search
 
 # Flash is fast and cheap, good enough for this task
 MODEL_NAME = "gemini-3.5-flash-lite"
-VALID_VERDICTS = {"Allowed", "Violation", "Unclear"}
+VALID_VERDICTS = {"Allowed", "Violation", "Depends", "Unclear"}
 
 # Strict prompt: only the excerpts, a fixed JSON shape, and "Unclear" as the safe default
 PROMPT_TEMPLATE = """You are a policy assistant for new employees.
@@ -18,6 +18,8 @@ Rules:
 - If they do not clearly cover it, use "Unclear" and tell the person to ask HR.
 - Name the page of the excerpt you relied on.
 - Reply with JSON only, with these keys: verdict, reason, page, next_step.
+- If the answer changes based on a condition (for example, employee type),
+    use "Depends" and explain each condition in the reason.
 
 Excerpts:
 {excerpts}
@@ -45,7 +47,7 @@ def parse_answer(raw_text):
             # Fill gaps so the app never shows None
         data["reason"] = data.get("reason") or "No reason was given."
         data["next_step"] = data.get("next_step") or "If you are unsure, ask HR."
-        
+
         # If the reply is not valid JSON, fail safe instead of guessing
         return {
             "verdict": "Unclear",
@@ -74,7 +76,7 @@ def answer_question(question):
     response = client.models.generate_content(
         model=MODEL_NAME,
         contents=prompt,
-        config={"response_mime_type": "application/json"},
+        config={"response_mime_type": "application/json", "temperature": 0},
     )
     return parse_answer(response.text)
 
