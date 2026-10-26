@@ -94,7 +94,6 @@ Never commit `.env` or the `db/` folder. The `.gitignore` already lists them.
 From the project root (`policy-guide`):
 
 ```bash
-
 streamlit run src/app.py
 ```
 
