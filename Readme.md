@@ -84,7 +84,7 @@ pip install -r requirements.txt
 Create a file named `.env` in the project root:
 
 ``` 
-GEMINI_API_KEY=your-key-here 
+GEMINI_API_KEY=your-key-here
 ```
 
 Never commit `.env` or the `db/` folder. The `.gitignore` already lists them.
