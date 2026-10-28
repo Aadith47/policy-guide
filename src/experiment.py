@@ -45,3 +45,4 @@ if __name__ == "__main__":
     for size in CHUNK_SIZES:
         count, hits = hit_rate(size, cases)
         print(f"{size:>10} | {count:>6} | {hits}/{len(cases)}")
+
